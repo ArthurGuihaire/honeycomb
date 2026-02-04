@@ -55,7 +55,7 @@ impl<'a> LineParser<'a> {
         }
     }
     fn push_segment(&mut self, index: usize, line: &'a str) {
-        if self.start_index < self.end_index {
+        if self.start_index < index {
             let prev = StringSegment {
                 italicized: self.c_italicized,
                 bold: self.c_bold,
@@ -65,8 +65,10 @@ impl<'a> LineParser<'a> {
             };
             self.fmlines.last_mut().unwrap().segments.push(prev);
             println!(
-                "Pushed segment start_index {}, end_index {}",
-                self.start_index, self.end_index
+                "Pushed segment start_index {}, end_index {}, string {}",
+                self.start_index,
+                index,
+                &line[self.start_index..index]
             );
         }
     }
@@ -77,7 +79,7 @@ impl<'a> LineParser<'a> {
         line: &'a str,
         iterator: &mut Peekable<CharIndices>,
     ) {
-        println!("Detected *");
+        println!("Detected * at index {}", index);
         //first push segment that ended here (unless empty segment)
         self.push_segment(index, line);
         //get next char to check if *, and check if not end of line
@@ -141,7 +143,7 @@ impl<'a> LineParser<'a> {
         //add character we ended on
         self.end_index += 1;
 
-        self.push_segment(self.start_index, line);
+        self.push_segment(self.end_index, line);
     }
 
     //pub fn print(&self) {
