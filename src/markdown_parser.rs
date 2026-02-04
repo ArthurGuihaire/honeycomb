@@ -1,5 +1,5 @@
 use crate::constants::{FONT_SIZES, LINE_SPACING};
-use std::{iter::Peekable, str::CharIndices};
+use std::{iter::Peekable, num, str::CharIndices};
 
 pub struct StringSegment<'a> {
     italicized: bool,
@@ -99,23 +99,47 @@ impl<'a> LineParser<'a> {
         }
     }
 
-    pub fn parse_line(&mut self, line: &'a str, c_offset_y: &mut u32) {
-        self.fmlines.push(FormattedLine {
-            font_size: FONT_SIZES[0],
-            offset_y: *c_offset_y,
-            segments: Vec::new(),
-        });
+    fn handle_hashtag(&mut self, iterator: &mut Peekable<CharIndices>) -> u32 {
+        //no need to push segment, hashtag is at the start of line
+        let mut num_hashtags = 0;
+        //for loops in rust: a to b-1, so this is 0 to 5 (6 iterations)
+        for _ in 0..6 {
+            if let Some(&(_next_idx, next_char)) = iterator.peek() {
+                if next_char == '#' {
+                    num_hashtags += 1;
+                    iterator.next();
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
 
-        *c_offset_y += FONT_SIZES[0] + LINE_SPACING;
+        self.start_index = num_hashtags;
+        return FONT_SIZES[num_hashtags];
+    }
+
+    pub fn parse_line(&mut self, line: &'a str, c_offset_y: &mut u32) {
         // Current state
         self.c_italicized = false;
         self.c_bold = false;
         self.c_code = false;
         self.start_index = 0;
 
+        //Handle font size with # only at start of line
+        let mut iterator = line.char_indices().peekable();
+        let font_size = self.handle_hashtag(&mut iterator);
+        self.fmlines.push(FormattedLine {
+            font_size: font_size,
+            offset_y: *c_offset_y,
+            segments: Vec::new(),
+        });
+
+        *c_offset_y += FONT_SIZES[0] + LINE_SPACING;
+
         let mut previous_char = ' ';
 
-        let mut iterator = line.char_indices().peekable();
         while let Some((index, character)) = iterator.next() {
             //If backslash, update needed variables, then continue (ignore all logic)
             if previous_char == '\\' {
@@ -156,10 +180,10 @@ impl<'a> LineParser<'a> {
 pub fn parse_markdown(string: &str) -> Vec<FormattedLine<'_>> {
     let mut c_offset_y: u32 = 0;
 
-    let mut parse: LineParser = LineParser::new();
+    let mut parser: LineParser = LineParser::new();
     for line in string.lines() {
-        parse.parse_line(&line, &mut c_offset_y);
+        parser.parse_line(&line, &mut c_offset_y);
     }
 
-    return parse.fmlines;
+    return parser.fmlines;
 }
