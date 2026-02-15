@@ -3,6 +3,8 @@ use clap::Parser;
 use crate::markdown_parser::parse_markdown;
 mod constants;
 mod markdown_parser;
+mod pdf_writer;
+use crate::pdf_writer::write_pdf;
 
 //derive thing copies method implementations for Args from clap::Parser
 #[derive(Parser)]
@@ -36,6 +38,8 @@ fn main() -> Result<(), std::io::Error> {
             }
         }
     }
+
+    write_pdf();
 
     Ok(())
 }
