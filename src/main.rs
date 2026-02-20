@@ -4,7 +4,7 @@ use crate::markdown_parser::parse_markdown;
 mod constants;
 mod markdown_parser;
 mod pdf_writer;
-use crate::pdf_writer::write_pdf;
+use crate::pdf_writer::PdfWriter;
 
 //derive thing copies method implementations for Args from clap::Parser
 #[derive(Parser)]
@@ -27,19 +27,23 @@ fn main() -> Result<(), std::io::Error> {
             unparsed_file = std::fs::read_to_string(filename)?;
             Ok(parse_markdown(&unparsed_file))
         }
-        None => Err(()),
+        None => {
+            println!("Input file error");
+            Err(())
+        }
     };
 
     match result {
         Err(_) => println!("Error"),
         Ok(fm_lines) => {
-            for line in fm_lines {
+            for line in &fm_lines {
                 line.print();
             }
+
+            let writer = PdfWriter::new();
+            writer.write_pdf(&fm_lines);
         }
     }
-
-    write_pdf();
 
     Ok(())
 }

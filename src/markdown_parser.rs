@@ -1,12 +1,12 @@
-use crate::constants::{FONT_SIZES, LINE_SPACING};
+use crate::constants::{FONT_SIZES, SPACING_FACTOR};
 use std::{iter::Peekable, num, str::CharIndices};
 
 pub struct StringSegment<'a> {
-    italicized: bool,
-    bold: bool,
-    code: bool,
-    offset_x: u32,
-    string: &'a str,
+    pub italicized: bool,
+    pub bold: bool,
+    pub code: bool,
+    pub offset_x: u32,
+    pub string: &'a str,
 }
 
 impl StringSegment<'_> {
@@ -19,9 +19,9 @@ impl StringSegment<'_> {
 }
 
 pub struct FormattedLine<'a> {
-    font_size: u32,
-    offset_y: u32,
-    segments: Vec<StringSegment<'a>>,
+    pub font_size: u32,
+    pub offset_y: u32,
+    pub segments: Vec<StringSegment<'a>>,
 }
 
 impl<'a> FormattedLine<'a> {
@@ -136,7 +136,7 @@ impl<'a> LineParser<'a> {
             segments: Vec::new(),
         });
 
-        *c_offset_y += FONT_SIZES[0] + LINE_SPACING;
+        *c_offset_y += (FONT_SIZES[0] as f32 * SPACING_FACTOR) as u32;
 
         let mut previous_char = ' ';
 

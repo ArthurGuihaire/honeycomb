@@ -1,3 +1,6 @@
-## test
+##test
 #*\*hello, world* non-italic
-this is gwib
+this text should be below the other text
+##large font
+###not so large
+**bold * both ** italic * normal

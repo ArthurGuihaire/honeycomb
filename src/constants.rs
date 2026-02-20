@@ -1,3 +1,2 @@
-pub const LINE_SPACING: u32 = 5;
-
-pub const FONT_SIZES: [u32; 7] = [16, 32, 24, 20, 18, 16, 14];
+pub const FONT_SIZES: [u32; 7] = [12, 56, 24, 20, 18, 16, 14];
+pub const SPACING_FACTOR: f32 = 1.3;
